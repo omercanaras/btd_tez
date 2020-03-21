@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "357721180463",
+    "firebase_url": "https://hwafire-416a6.firebaseio.com",
+    "project_id": "hwafire-416a6",
+    "storage_bucket": "hwafire-416a6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:357721180463:android:258811316c524a9fcdf9da",
+        "android_client_info": {
+          "package_name": "com.example.tez_bdt"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "357721180463-ieoa9h6j6okit8sruovee3a9rb2tlhhq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tez_bdt",
+            "certificate_hash": "08a08d48c03302b74cb023bd287b095da10043d4"
+          }
+        },
+        {
+          "client_id": "357721180463-mllb7kpph2kcgn98oq7vi548d5bkgudh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJ-2yQ0H-jFdKAOjl98TpDMgpYwJjAUAc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "357721180463-mllb7kpph2kcgn98oq7vi548d5bkgudh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
