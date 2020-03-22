@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:tez_bdt/core/model/user/user_auth_error.dart';
 import 'package:tez_bdt/core/model/user/user_request.dart';
 import 'package:tez_bdt/core/services/firebase_services.dart';
+import 'package:tez_bdt/core/services/google_signin.dart';
 import 'package:tez_bdt/ui/view/home/home_view.dart';
 
 class LoginView extends StatefulWidget {
@@ -221,11 +222,8 @@ class _LoginViewState extends State<LoginView> {
 
   Widget _socialButton(Function onTap, AssetImage logo) {
     return GestureDetector(
-      onTap: () async{
-        
-    
-
-      },
+      onTap: onTap
+      ,
       child: Container(
         height: 42.0,
         width: 32.0,
@@ -249,7 +247,13 @@ class _LoginViewState extends State<LoginView> {
 
   void ontTap1() {
     setState(() async {
-     
+      
+        var data = await GoogleSignHelper.instance.signIn();
+        if (data != null) {
+          var userData = await GoogleSignHelper.instance.FirebaseSignIn();
+          //print(userData.accessToken);
+          //print(userData.idToken);
+        }
     });
   }
 }
