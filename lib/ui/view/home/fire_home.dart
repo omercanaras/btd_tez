@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tez_bdt/core/helper/shared_manager.dart';
 
 import '../../../core/model/student.dart';
 import '../../../core/model/user.dart';
@@ -25,7 +26,7 @@ class _FireHomeViewState extends State<FireHomeView> {
 
     return Scaffold(
       appBar: AppBar(),
-      body: _studentsBuilder
+      body: studentsBuilder
     );
   }
 
@@ -47,18 +48,19 @@ class _FireHomeViewState extends State<FireHomeView> {
         },
       );
 
-  Widget get _studentsBuilder => FutureBuilder<List<Student>>(
+  Widget get studentsBuilder => FutureBuilder(
         future: service.getStudents(),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
               if (snapshot.hasData) {
-                return _listStudent(snapshot.data);
-              } else {
-                return _notFoundWidget;
+                if (snapshot.data is List) {
+                  return _listStudent(snapshot.data);
+                } 
               }
+              print("Data gelmedi");
+              return _notFoundWidget;
 
-              break;
             default:
               return _waitingWidget;
           }

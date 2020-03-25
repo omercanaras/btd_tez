@@ -1,14 +1,16 @@
-class Student {
+import 'package:tez_bdt/core/model/base/base_model.dart';
+
+class Student extends BaseModel {
   String key;
   String name;
-  String number;
+  int number;
 
   Student({this.key, this.name, this.number});
 
   Student.fromJson(Map<String, dynamic> json) {
     key = json['key'];
     name = json['name'];
-    number = json['number'];
+    number = json["number"];
   }
 
   Map<String, dynamic> toJson() {
@@ -17,5 +19,10 @@ class Student {
     data['name'] = this.name;
     data['number'] = this.number;
     return data;
+  }
+
+  @override
+  fromJson(Map<String, dynamic> json) {
+    return Student.fromJson(json);
   }
 }

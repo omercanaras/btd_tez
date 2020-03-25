@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:tez_bdt/core/helper/shared_manager.dart';
 import 'package:tez_bdt/core/model/user/user_auth_error.dart';
 import 'package:tez_bdt/core/model/user/user_request.dart';
 import 'package:tez_bdt/core/services/firebase_services.dart';
 import 'package:tez_bdt/core/services/google_signin.dart';
+import 'package:tez_bdt/ui/view/authentication/loading.dart';
+import 'package:tez_bdt/ui/view/home/fire_home.dart';
 import 'package:tez_bdt/ui/view/home/home_view.dart';
 
 class LoginView extends StatefulWidget {
@@ -14,52 +18,77 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   String username;
   String password;
+  bool loading = false;
   FirebaseService service = FirebaseService();
   GlobalKey<ScaffoldState> scaffolf = GlobalKey();
+  // @override
+  // void initState() {
+  //   // TODO: implement initState
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((val){
+    
+  //     if(SharedManager.instance.getStringValue(SharedKeys.TOKEN).isNotEmpty){
+  //       navigateToHome();
+  //     }
+  //     else{
+  //       print("null");
+  //     }
+
+
+
+  //   });
+  // }
+  
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: scaffolf,
-      backgroundColor: Colors.white,
-      body: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle.light,
-        child: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: Stack(
-            children: <Widget>[
-              _boxdecoration(),
-              Container(
-                  height: double.infinity,
-                  child: SingleChildScrollView(
-                    physics: AlwaysScrollableScrollPhysics(),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 40.0,
-                      vertical: 90.0,
-                    ),
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          _titleDecoration(),
-                          Padding(
-                            padding: EdgeInsets.only(top: 42),
-                            child: Column(children: <Widget>[
-                              _mailBox(),
-                              SizedBox(height: 20),
-                              _passwordBox(),
-                              SizedBox(height: 20),
-                              _forgotPasswordButton(),
-                              _loginBtn(),
-                              _socialButtonRow()
-                            ]),
-                          )
-                        ]),
-                  ))
-            ],
-          ),
-        ),
-      ),
-    );
+
+    //  print(SharedManager.instance.getStringValue(SharedKeys.TOKEN));
+   //print(GoogleSignHelper.instance.isHaveUser);
+
+    return loading
+        ? Loading()
+        : Scaffold(
+            key: scaffolf,
+            backgroundColor: Colors.white,
+            body: AnnotatedRegion<SystemUiOverlayStyle>(
+              value: SystemUiOverlayStyle.light,
+              child: GestureDetector(
+                onTap: () => FocusScope.of(context).unfocus(),
+                child: Stack(
+                  children: <Widget>[
+                    _boxdecoration(),
+                    Container(
+                        height: double.infinity,
+                        child: SingleChildScrollView(
+                          physics: AlwaysScrollableScrollPhysics(),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 40.0,
+                            vertical: 90.0,
+                          ),
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                _titleDecoration(),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 42),
+                                  child: Column(children: <Widget>[
+                                    _mailBox(),
+                                    SizedBox(height: 20),
+                                    _passwordBox(),
+                                    SizedBox(height: 20),
+                                    _forgotPasswordButton(),
+                                    _loginBtn(),
+                                    _socialButtonRow()
+                                  ]),
+                                )
+                              ]),
+                        ))
+                  ],
+                ),
+              ),
+            ),
+          );
   }
 
   Widget _boxdecoration() {
@@ -160,6 +189,17 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
+  void navigateToHome(){
+    setState(() {
+               loading=true;
+              });
+            Future.delayed(Duration(seconds: 1), () {
+               Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => HomeScreen()));
+            });
+
+  }
+
   Widget _loginBtn() {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 22.0),
@@ -174,15 +214,17 @@ class _LoginViewState extends State<LoginView> {
               SnackBar(content: Text(result.error.message)),
             );
           } else {
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => HomeScreen()));
+            
+            navigateToHome();
+            
+           
           }
         },
         padding: EdgeInsets.all(12.0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(32.0),
         ),
-        color: Colors.blue[200],
+        color: Color(0xFFBBE1FA),
         child: Text(
           'LOGIN',
           style: TextStyle(
@@ -222,8 +264,16 @@ class _LoginViewState extends State<LoginView> {
 
   Widget _socialButton(Function onTap, AssetImage logo) {
     return GestureDetector(
-      onTap: onTap
-      ,
+      onTap: () async {
+         var data = await GoogleSignHelper.instance.signIn();
+      if (data != null) {
+        var userData = await GoogleSignHelper.instance.FirebaseSignIn();
+        
+        navigateToHome();
+        
+        
+      }
+      },
       child: Container(
         height: 42.0,
         width: 32.0,
@@ -247,13 +297,14 @@ class _LoginViewState extends State<LoginView> {
 
   void ontTap1() {
     setState(() async {
-      
-        var data = await GoogleSignHelper.instance.signIn();
-        if (data != null) {
-          var userData = await GoogleSignHelper.instance.FirebaseSignIn();
-          //print(userData.accessToken);
-          //print(userData.idToken);
-        }
+      var data = await GoogleSignHelper.instance.signIn();
+      if (data != null) {
+        var userData = await GoogleSignHelper.instance.FirebaseSignIn();
+        
+        navigateToHome();
+        
+        
+      }
     });
   }
 }
