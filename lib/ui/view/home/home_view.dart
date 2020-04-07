@@ -3,6 +3,7 @@ import 'package:tez_bdt/core/localdatamodel/option_model.dart';
 import 'package:tez_bdt/ui/view/depressionTest/depression_start.dart';
 import 'package:tez_bdt/ui/view/home/fire_home.dart';
 import 'package:tez_bdt/ui/view/home/screen.dart';
+import 'package:tez_bdt/ui/view/recordThought/thought_record.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -18,9 +19,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        centerTitle: true,
         backgroundColor: Colors.blue[200],
-        title: Center(child: Text('Hoşgeldiniz'),
-        ),
+        title:  Text('Hoşgeldiniz'),
         
         actions: <Widget>[
           
@@ -70,10 +71,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     MaterialPageRoute(builder: (context) => QuestionStart()));}
                   else if(index==2){
                     Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => FireHomeView()));
+                    MaterialPageRoute(builder: (context) => ThoughtRecord()));
                   }
                   else if(index==3){
-                    print("Kayıtlı Düşüncelerim Push");
+                    Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => FireHomeView()));
                   }
                   else if(index==4){
                     print("Grafiksel takip Push");

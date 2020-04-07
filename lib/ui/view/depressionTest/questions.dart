@@ -16,6 +16,7 @@ class _QuestionsState extends State<Questions> {
         onWillPop: () async => true,
         child: Scaffold(
           appBar: AppBar(
+          centerTitle: true,
           backgroundColor: Colors.blueAccent[200],
           title: Text("Beck Testi"),
           ),
@@ -197,7 +198,7 @@ class Summary extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               new Text(
-                "Final Score: $finalScore",
+                "Test Sonucunuz: $finalScore",
                 style: new TextStyle(fontSize: 35.0),
               ),
               Center(child: new Padding(padding: EdgeInsets.all(30.0))),
@@ -209,7 +210,7 @@ class Summary extends StatelessWidget {
                   Navigator.pop(context);
                 },
                 child: new Text(
-                  "Reset Test",
+                  "Testi Tekrarla",
                   style: new TextStyle(fontSize: 20.0, color: Colors.white),
                 ),
               )
