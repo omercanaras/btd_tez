@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tez_bdt/core/localdatamodel/option_model.dart';
+import 'package:tez_bdt/core/model/record_model.dart';
+
 import 'package:tez_bdt/ui/view/depressionTest/depression_start.dart';
 import 'package:tez_bdt/ui/view/home/fire_home.dart';
 import 'package:tez_bdt/ui/view/home/screen.dart';
@@ -13,9 +15,10 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
    int _selectedOption = 0;
-
+  
   @override
   Widget build(BuildContext context) {
+    final recordmodel = new RecordModel(null,null);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(

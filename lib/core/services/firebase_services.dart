@@ -1,7 +1,8 @@
 import 'dart:convert';
-
+import 'dart:developer';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tez_bdt/core/helper/shared_manager.dart';
 import 'package:tez_bdt/core/model/base/base_header.dart';
 import 'package:tez_bdt/core/model/student.dart';
@@ -10,6 +11,8 @@ import 'package:tez_bdt/core/model/user/user_auth_error.dart';
 import 'package:tez_bdt/core/model/user/user_request.dart';
 import 'package:http/http.dart' as http;
 import 'package:tez_bdt/core/services/base_service.dart';
+import 'package:tez_bdt/core/helper/shared_manager.dart';
+
 
 class FirebaseService {
   static const String FIREBASE_URL = "https://hwafire-416a6.firebaseio.com/";
@@ -19,12 +22,26 @@ class FirebaseService {
 
   BaseService _baseService = BaseService.instance;
 
-  
+ 
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+ 
+
+
   Future postUser(UserRequest request) async {
     var jsonModel = json.encode(request.toJson());
 
     final response = await http.post(FIREBASE_AUT_URL, body: jsonModel);
 
+    final jsonbody =  await json.decode(response.body);
+
+    
+    var reversedbody = await jsonbody.map((k, v) => MapEntry(v, k));
+    var uid = reversedbody.keys.firstWhere(
+                    (k) => reversedbody[k] == 'localId', orElse: () => null);
+
+      await SharedManager.instance
+        .saveString(SharedKeys.TOKEN, uid);
+ 
     switch (response.statusCode) {
       case HttpStatus.ok:
         return true;
@@ -36,6 +53,8 @@ class FirebaseService {
         return error;
     }
   }
+
+   
 
   Future<List<User>> getUsers() async {
     final response = await http.get("$FIREBASE_URL/users.json");
@@ -72,8 +91,18 @@ class FirebaseService {
    
 
   }
+   // GET UID
+  Future<String> getCurrentUID() async {
+    return (await _firebaseAuth.currentUser()).uid;
+  }
+
+  
 
 
+  // Sign Out
+  signOut() {
+    return _firebaseAuth.signOut();
+  }
 
 
   // switch (response.statusCode) {

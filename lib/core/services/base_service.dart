@@ -13,6 +13,9 @@ class BaseService {
 
   static BaseService get instance => _instance;
 
+
+
+
   Future get<T extends BaseModel>(T model, String child,
   {Header header}) async {
   final response = await http

@@ -1,6 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:tez_bdt/core/helper/shared_manager.dart';
+import 'package:tez_bdt/core/model/record_model.dart';
+import 'package:tez_bdt/core/model/user.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tez_bdt/core/services/firebase_services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ThoughtRecord extends StatefulWidget {
+
+
+
+  
+
   @override
   _ThoughtRecordState createState() => _ThoughtRecordState();
 }
@@ -8,16 +19,35 @@ class ThoughtRecord extends StatefulWidget {
 // Düzeltme yapılıcak düşünce hataları ve hissedilen duygular arasında tabloya karar vermek gerekiyor.
 
 class _ThoughtRecordState extends State<ThoughtRecord> {
-  GlobalKey<ScaffoldState> _key;
+
+  FirebaseService service = FirebaseService();
+
+  final db = Firestore.instance;
+  
   List<Feeling> _feelings;
   bool _isSelected;
   List<String> _filters;
   List<String> _filters2;
+  User user;
+  
+  
+  final rethought = new ReThought(null, null, null, null, null);
+  
+  
+  final _controller = TextEditingController();
+  final _controller2 = TextEditingController();
+  final _controller3 = TextEditingController();
+  
+
 
   List<Thought> _thoughtfails;
+  
 
   @override
   void initState() {
+    
+  
+    
     super.initState();
     _thoughtfails = <Thought>[
       Thought("Aşırı Genellemek"),
@@ -31,7 +61,7 @@ class _ThoughtRecordState extends State<ThoughtRecord> {
     ];
     _filters = [];
     _filters2 = [];
-    _key = GlobalKey<ScaffoldState>();
+    
     _feelings = <Feeling>[
       Feeling("Üzgün"),
       Feeling("Kaygılı"),
@@ -45,12 +75,20 @@ class _ThoughtRecordState extends State<ThoughtRecord> {
       Feeling("Kötü niyetli"),
     ];
   }
+ 
+
+ 
+
+
 
   @override
   Widget build(BuildContext context) {
+  
+   
+    
     return Scaffold(
       backgroundColor: Colors.white,
-      key: _key,
+      
       appBar: AppBar(
         title: Text("Düşünce Kayıt Sistemi"),
         centerTitle: true,
@@ -61,6 +99,7 @@ class _ThoughtRecordState extends State<ThoughtRecord> {
           padding: const EdgeInsets.only(top: 12.0),
           child: Column(
             children: <Widget>[
+              
               textContainer(),
               feelingemotion(),
               SingleChildScrollView(
@@ -112,6 +151,7 @@ class _ThoughtRecordState extends State<ThoughtRecord> {
     return Container(
       margin: EdgeInsets.all(8.0),
       child: TextField(
+        controller: _controller,
         textInputAction: TextInputAction.done,
         maxLines: 4,
         textCapitalization: TextCapitalization.sentences,
@@ -119,9 +159,7 @@ class _ThoughtRecordState extends State<ThoughtRecord> {
             labelText: "Durum",
             hintText: "Ne oldu? Nerede? Ne zaman? Kiminle? Nasıl?",
             border: OutlineInputBorder()),
-        onChanged: (text) {
-          setState(() {});
-        },
+       
       ),
     );
   }
@@ -130,6 +168,7 @@ class _ThoughtRecordState extends State<ThoughtRecord> {
     return Container(
       margin: EdgeInsets.all(8.0),
       child: TextField(
+        controller: _controller2,
         textInputAction: TextInputAction.done,
         maxLines: 4,
         textCapitalization: TextCapitalization.sentences,
@@ -137,9 +176,7 @@ class _ThoughtRecordState extends State<ThoughtRecord> {
             labelText: "Otomatik Düşünceler",
             hintText: "Zihnimden neler geçti?",
             border: OutlineInputBorder()),
-        onChanged: (text) {
-          setState(() {});
-        },
+       
       ),
     );
   }
@@ -148,6 +185,7 @@ class _ThoughtRecordState extends State<ThoughtRecord> {
     return Container(
       margin: EdgeInsets.all(8.0),
       child: TextField(
+        controller: _controller3,
         textInputAction: TextInputAction.done,
         maxLines: 4,
         textCapitalization: TextCapitalization.sentences,
@@ -157,7 +195,9 @@ class _ThoughtRecordState extends State<ThoughtRecord> {
                 "Başka şekilde bakılabilir mi? Bir başkası olsaydı ona ne tavsiye ederdim?",
             border: OutlineInputBorder()),
         onChanged: (text) {
-          setState(() {});
+          setState(() {
+
+          });
         },
       ),
     );
@@ -261,8 +301,21 @@ class _ThoughtRecordState extends State<ThoughtRecord> {
 
   Widget buttonWidget() {
     return OutlineButton(
-      onPressed: () {
-        debugPrint("Kaydet Butonu Tıkladın");
+      onPressed: ()  async {
+       setState(() {
+         rethought.situation=_controller.text;
+         rethought.feelings=_filters;
+         rethought.thoughts=_filters2;
+         rethought..initialthought=_controller2.text;
+         rethought.althinking=_controller3.text;
+ });
+
+        // final uid=await service.getCurrentUID();
+        final uid2=  SharedManager.instance.getStringValue(SharedKeys.TOKEN);
+        print(uid2);
+         await db.collection("userData").document(uid2).collection("failthrought").add(rethought.toJson());
+        
+       
       },
       highlightedBorderColor: Colors.lightBlueAccent,
       highlightColor: Colors.white,
@@ -276,6 +329,8 @@ class _ThoughtRecordState extends State<ThoughtRecord> {
   Widget buttonWidget2() {
     return OutlineButton(
       onPressed: () {
+        final newthought = new RecordModel(null,null);
+        
         Navigator.pushReplacement(
                 context, MaterialPageRoute(builder: (_) => ThoughtRecord()))
             .then((_) => ThoughtRecord());
@@ -299,3 +354,28 @@ class Thought {
   const Thought(this.name);
   final String name;
 }
+
+class ReThought {
+  String situation;
+  List<String> feelings;
+  String initialthought;
+  List<String> thoughts;
+  String althinking;
+
+  ReThought(
+      this.situation,
+      this.feelings,
+      this.initialthought,
+      this.thoughts,
+      this.althinking
+      );
+
+  Map<String, dynamic> toJson() => {
+    'situation': situation,
+    'feelings': feelings,
+    'initialthought': initialthought,
+    'thoughts': thoughts,
+    'althinking': althinking,
+  };
+}
+

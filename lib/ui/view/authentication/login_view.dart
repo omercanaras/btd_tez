@@ -207,13 +207,16 @@ class _LoginViewState extends State<LoginView> {
       child: RaisedButton(
         elevation: 5.0,
         onPressed: () async {
+
           var result = await service.postUser(UserRequest(
               email: username, password: password, returnSecureToken: true));
+            
           if (result is FirebaseAuthError) {
             scaffolf.currentState.showSnackBar(
               SnackBar(content: Text(result.error.message)),
             );
-          } else {
+          } 
+          else {
             
             navigateToHome();
             
