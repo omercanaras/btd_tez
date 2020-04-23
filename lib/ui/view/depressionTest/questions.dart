@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:tez_bdt/core/model/user/test_model.dart';
 import 'package:tez_bdt/localdata/local_data.dart';
-
-
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tez_bdt/ui/view/home/home_view.dart';
 
 class Questions extends StatefulWidget {
   @override
@@ -10,15 +11,19 @@ class Questions extends StatefulWidget {
 }
 
 class _QuestionsState extends State<Questions> {
+
+  
+ 
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
         onWillPop: () async => true,
         child: Scaffold(
           appBar: AppBar(
-          centerTitle: true,
-          backgroundColor: Colors.blueAccent[200],
-          title: Text("Beck Testi"),
+            centerTitle: true,
+            backgroundColor: Colors.blueAccent[200],
+            title: Text("Beck Testi"),
           ),
           backgroundColor: Colors.white,
           body: _questionsContainer(),
@@ -40,13 +45,12 @@ class _QuestionsState extends State<Questions> {
   }
 
   Widget _questionBox0() {
-    return  InkWell(
-      onTap: (){
-        finalScore++;
+    return InkWell(
+      onTap: () {
+        finalScore=finalScore;
         updateQuestion();
-        
       },
-          child: Container(
+      child: Container(
         alignment: Alignment.center,
         margin: EdgeInsets.all(10.0),
         width: double.infinity,
@@ -69,10 +73,11 @@ class _QuestionsState extends State<Questions> {
 
   Widget _questionBox1() {
     return InkWell(
-      onTap: (){
-        finalScore=finalScore+1;
-        updateQuestion();},
-          child: Container(
+      onTap: () {
+        finalScore = finalScore + 1;
+        updateQuestion();
+      },
+      child: Container(
         alignment: Alignment.center,
         margin: EdgeInsets.all(10.0),
         width: double.infinity,
@@ -96,10 +101,11 @@ class _QuestionsState extends State<Questions> {
 
   Widget _questionBox2() {
     return InkWell(
-      onTap: (){
-        finalScore=finalScore+2;
-        updateQuestion();},
-          child: Container(
+      onTap: () {
+        finalScore = finalScore + 2;
+        updateQuestion();
+      },
+      child: Container(
         alignment: Alignment.center,
         margin: EdgeInsets.all(10.0),
         width: double.infinity,
@@ -122,10 +128,11 @@ class _QuestionsState extends State<Questions> {
 
   Widget _questionBox3() {
     return InkWell(
-      onTap: (){
-        finalScore=finalScore+3;
-        updateQuestion();},
-          child: Container(
+      onTap: () {
+        finalScore = finalScore + 3;
+        updateQuestion();
+      },
+      child: Container(
         alignment: Alignment.center,
         margin: EdgeInsets.all(10.0),
         width: double.infinity,
@@ -168,6 +175,7 @@ class _QuestionsState extends State<Questions> {
               border: Border.all(color: Colors.white)),
         ));
   }
+ 
 
   void updateQuestion() {
     setState(() {
@@ -183,13 +191,20 @@ class _QuestionsState extends State<Questions> {
       }
     });
   }
+
 }
+
 class Summary extends StatelessWidget {
+  final db = Firestore.instance;
   final int score;
   Summary({Key key, @required this.score}) : super(key: key);
-
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final testpoint= new TestPoint(null, null);
+  
   @override
   Widget build(BuildContext context) {
+    
+  
     return new WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -202,18 +217,58 @@ class Summary extends StatelessWidget {
                 style: new TextStyle(fontSize: 35.0),
               ),
               Center(child: new Padding(padding: EdgeInsets.all(30.0))),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  new MaterialButton(
+                    color: Colors.red,
+                    onPressed: () {
+                      questionNumber = 0;
+                      finalScore = 0;
+                      Navigator.pop(context);
+                    },
+                    child: new Text(
+                      "Tekrar",
+                      style: new TextStyle(fontSize: 20.0, color: Colors.white),
+                    ),
+                  ),
+                  new MaterialButton(
+                    color: Colors.blueAccent,
+                    onPressed: () async {
+                      testpoint.point=finalScore;
+                      testpoint.time=DateTime.now();
+                      
+                      final currentuser = await _firebaseAuth.currentUser();
+
+                      await db
+            .collection("userData")
+            .document(currentuser.uid)
+            .collection("testpoint")
+            .add(testpoint.toJson());
+
+                    },
+                    child: new Text(
+                      "Kaydet",
+                      style: new TextStyle(fontSize: 20.0, color: Colors.white),
+                    ),
+                  )
+                ],
+              ),
+             
+              SizedBox(height:15.0), 
               new MaterialButton(
-                color: Colors.red,
-                onPressed: () {
-                  questionNumber = 0;
-                  finalScore = 0;
-                  Navigator.pop(context);
-                },
-                child: new Text(
-                  "Testi Tekrarla",
-                  style: new TextStyle(fontSize: 20.0, color: Colors.white),
-                ),
-              )
+                    color: Colors.orangeAccent,
+                    onPressed: () {
+                      questionNumber = 0;
+                      finalScore = 0;
+                        Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => HomeScreen()));
+                    },
+                    child: new Text(
+                      "Ana menü",
+                      style: new TextStyle(fontSize: 20.0, color: Colors.white),
+                    ),
+                  ),
             ],
           ),
         ),
@@ -221,4 +276,3 @@ class Summary extends StatelessWidget {
     );
   }
 }
-

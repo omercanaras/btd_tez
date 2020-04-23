@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
+
 import 'package:flutter/services.dart';
-import 'package:tez_bdt/core/helper/shared_manager.dart';
-import 'package:tez_bdt/core/model/user/user_auth_error.dart';
-import 'package:tez_bdt/core/model/user/user_request.dart';
+
 import 'package:tez_bdt/core/services/firebase_services.dart';
 import 'package:tez_bdt/core/services/google_signin.dart';
 import 'package:tez_bdt/ui/view/authentication/loading.dart';
-import 'package:tez_bdt/ui/view/home/fire_home.dart';
+
 import 'package:tez_bdt/ui/view/home/home_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 class LoginView extends StatefulWidget {
   @override
@@ -21,9 +21,13 @@ class _LoginViewState extends State<LoginView> {
   bool loading = false;
   FirebaseService service = FirebaseService();
   GlobalKey<ScaffoldState> scaffolf = GlobalKey();
+
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
+  
   // @override
   // void initState() {
-  //   // TODO: implement initState
+  
   //   super.initState();
   //   WidgetsBinding.instance.addPostFrameCallback((val){
     
@@ -207,19 +211,21 @@ class _LoginViewState extends State<LoginView> {
       child: RaisedButton(
         elevation: 5.0,
         onPressed: () async {
+         
+          // final result = await service.postUser(UserRequest(
+          //     email: username, password: password, returnSecureToken: true));
 
-          var result = await service.postUser(UserRequest(
-              email: username, password: password, returnSecureToken: true));
-            
-          if (result is FirebaseAuthError) {
-            scaffolf.currentState.showSnackBar(
-              SnackBar(content: Text(result.error.message)),
-            );
+          final result2 = await _firebaseAuth.signInWithEmailAndPassword(email: username, password: password);
+
+        
+          if (result2.user.uid!=null) {
+            navigateToHome();
           } 
           else {
-            
-            navigateToHome();
-            
+          
+             scaffolf.currentState.showSnackBar(
+              SnackBar(content: Text("Gİriş Hatalı")),
+            );
            
           }
         },
@@ -268,7 +274,7 @@ class _LoginViewState extends State<LoginView> {
   Widget _socialButton(Function onTap, AssetImage logo) {
     return GestureDetector(
       onTap: () async {
-         var data = await GoogleSignHelper.instance.signIn();
+          var data = await GoogleSignHelper.instance.signIn();
       if (data != null) {
         var userData = await GoogleSignHelper.instance.FirebaseSignIn();
         

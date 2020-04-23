@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "357721180463-ieoa9h6j6okit8sruovee3a9rb2tlhhq.apps.googleusercontent.com",
+          "client_id": "357721180463-ijr8g811dppgu8elfrfh4mse3kjekqvr.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.tez_bdt",
-            "certificate_hash": "08a08d48c03302b74cb023bd287b095da10043d4"
+            "certificate_hash": "9bdbac525b69c3d0ee6e80a69d17ad20cfd97fd8"
           }
         },
         {

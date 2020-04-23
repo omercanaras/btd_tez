@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:tez_bdt/core/helper/shared_manager.dart';
-import 'package:tez_bdt/core/model/record_model.dart';
+
 import 'package:tez_bdt/core/model/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tez_bdt/core/services/firebase_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+
+
+
 
 class ThoughtRecord extends StatefulWidget {
-
-
-
-  
-
   @override
   _ThoughtRecordState createState() => _ThoughtRecordState();
 }
@@ -19,35 +19,28 @@ class ThoughtRecord extends StatefulWidget {
 // Düzeltme yapılıcak düşünce hataları ve hissedilen duygular arasında tabloya karar vermek gerekiyor.
 
 class _ThoughtRecordState extends State<ThoughtRecord> {
-
   FirebaseService service = FirebaseService();
 
   final db = Firestore.instance;
-  
+
   List<Feeling> _feelings;
   bool _isSelected;
   List<String> _filters;
   List<String> _filters2;
   User user;
   
-  
-  final rethought = new ReThought(null, null, null, null, null);
-  
-  
+    final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
+  final rethought = new ReThought(null, null, null, null, null,null);
+
   final _controller = TextEditingController();
   final _controller2 = TextEditingController();
   final _controller3 = TextEditingController();
-  
-
 
   List<Thought> _thoughtfails;
-  
 
   @override
   void initState() {
-    
-  
-    
     super.initState();
     _thoughtfails = <Thought>[
       Thought("Aşırı Genellemek"),
@@ -61,7 +54,7 @@ class _ThoughtRecordState extends State<ThoughtRecord> {
     ];
     _filters = [];
     _filters2 = [];
-    
+
     _feelings = <Feeling>[
       Feeling("Üzgün"),
       Feeling("Kaygılı"),
@@ -75,20 +68,11 @@ class _ThoughtRecordState extends State<ThoughtRecord> {
       Feeling("Kötü niyetli"),
     ];
   }
- 
-
- 
-
-
 
   @override
   Widget build(BuildContext context) {
-  
-   
-    
     return Scaffold(
       backgroundColor: Colors.white,
-      
       appBar: AppBar(
         title: Text("Düşünce Kayıt Sistemi"),
         centerTitle: true,
@@ -99,7 +83,6 @@ class _ThoughtRecordState extends State<ThoughtRecord> {
           padding: const EdgeInsets.only(top: 12.0),
           child: Column(
             children: <Widget>[
-              
               textContainer(),
               feelingemotion(),
               SingleChildScrollView(
@@ -159,7 +142,6 @@ class _ThoughtRecordState extends State<ThoughtRecord> {
             labelText: "Durum",
             hintText: "Ne oldu? Nerede? Ne zaman? Kiminle? Nasıl?",
             border: OutlineInputBorder()),
-       
       ),
     );
   }
@@ -176,7 +158,6 @@ class _ThoughtRecordState extends State<ThoughtRecord> {
             labelText: "Otomatik Düşünceler",
             hintText: "Zihnimden neler geçti?",
             border: OutlineInputBorder()),
-       
       ),
     );
   }
@@ -195,9 +176,7 @@ class _ThoughtRecordState extends State<ThoughtRecord> {
                 "Başka şekilde bakılabilir mi? Bir başkası olsaydı ona ne tavsiye ederdim?",
             border: OutlineInputBorder()),
         onChanged: (text) {
-          setState(() {
-
-          });
+          setState(() {});
         },
       ),
     );
@@ -301,20 +280,29 @@ class _ThoughtRecordState extends State<ThoughtRecord> {
 
   Widget buttonWidget() {
     return OutlineButton(
-      onPressed: ()  async {
-       setState(() {
-         rethought.situation=_controller.text;
-         rethought.feelings=_filters;
-         rethought.thoughts=_filters2;
-         rethought..initialthought=_controller2.text;
-         rethought.althinking=_controller3.text;
- });
+      onPressed: () async {
+        setState(() {
+          rethought.situation = _controller.text;
+          rethought.feelings = _filters;
+          rethought.thoughts = _filters2;
+          rethought..initialthought = _controller2.text;
+          rethought.althinking = _controller3.text;
+          rethought.time=DateTime.now();
+        });
 
-        // final uid=await service.getCurrentUID();
-        final uid2=  SharedManager.instance.getStringValue(SharedKeys.TOKEN);
-        print(uid2);
-         await db.collection("userData").document(uid2).collection("failthrought").add(rethought.toJson());
-        
+        // final uid2 = SharedManager.instance.getStringValue(SharedKeys.TOKEN);
+        // print(uid2);
+        final currentuser=await _firebaseAuth.currentUser();
+
+        final colReturn = await db
+            .collection("userData")
+            .document(currentuser.uid)
+            .collection("failthrought")
+            .add(rethought.toJson());
+
+        if (colReturn.documentID != null) {
+           _ackAlert(context);
+        }
        
       },
       highlightedBorderColor: Colors.lightBlueAccent,
@@ -326,11 +314,34 @@ class _ThoughtRecordState extends State<ThoughtRecord> {
     );
   }
 
+  Future<void> _ackAlert(BuildContext context) {
+  return showDialog<void>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        
+        content: const Text('Düşünceniz Kaydedildi'),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Tamam'),
+            onPressed: () {
+                 Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (_) => ThoughtRecord()))
+            .then((_) => ThoughtRecord());
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
   Widget buttonWidget2() {
     return OutlineButton(
       onPressed: () {
-        final newthought = new RecordModel(null,null);
         
+        
+
         Navigator.pushReplacement(
                 context, MaterialPageRoute(builder: (_) => ThoughtRecord()))
             .then((_) => ThoughtRecord());
@@ -361,21 +372,17 @@ class ReThought {
   String initialthought;
   List<String> thoughts;
   String althinking;
+  DateTime time;
 
-  ReThought(
-      this.situation,
-      this.feelings,
-      this.initialthought,
-      this.thoughts,
-      this.althinking
-      );
+  ReThought(this.situation, this.feelings, this.initialthought, this.thoughts,
+      this.althinking,this.time);
 
   Map<String, dynamic> toJson() => {
-    'situation': situation,
-    'feelings': feelings,
-    'initialthought': initialthought,
-    'thoughts': thoughts,
-    'althinking': althinking,
-  };
+        'situation': situation,
+        'feelings': feelings,
+        'initialthought': initialthought,
+        'thoughts': thoughts,
+        'althinking': althinking,
+        'time':time
+      };
 }
-

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:tez_bdt/core/localdatamodel/option_model.dart';
-import 'package:tez_bdt/core/model/record_model.dart';
+import 'package:tez_bdt/deneme/home_widget.dart';
+
 
 import 'package:tez_bdt/ui/view/depressionTest/depression_start.dart';
 import 'package:tez_bdt/ui/view/home/fire_home.dart';
 import 'package:tez_bdt/ui/view/home/screen.dart';
 import 'package:tez_bdt/ui/view/recordThought/thought_record.dart';
+import 'package:tez_bdt/ui/view/thoughts/thoughts.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -18,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   
   @override
   Widget build(BuildContext context) {
-    final recordmodel = new RecordModel(null,null);
+    
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -78,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
                   else if(index==3){
                     Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => FireHomeView()));
+                    MaterialPageRoute(builder: (context) => ThoughtScreen()));
                   }
                   else if(index==4){
                     print("Grafiksel takip Push");

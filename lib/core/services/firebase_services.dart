@@ -1,17 +1,12 @@
 import 'dart:convert';
-import 'dart:developer';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tez_bdt/core/helper/shared_manager.dart';
-import 'package:tez_bdt/core/model/base/base_header.dart';
-import 'package:tez_bdt/core/model/student.dart';
-import 'package:tez_bdt/core/model/user.dart';
+
 import 'package:tez_bdt/core/model/user/user_auth_error.dart';
 import 'package:tez_bdt/core/model/user/user_request.dart';
 import 'package:http/http.dart' as http;
-import 'package:tez_bdt/core/services/base_service.dart';
-import 'package:tez_bdt/core/helper/shared_manager.dart';
 
 
 class FirebaseService {
@@ -20,28 +15,23 @@ class FirebaseService {
   static const String FIREBASE_AUT_URL =
       "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAa1lfFRYR5eZ7CanyLLl47VDyG18YgEFI";
 
-  BaseService _baseService = BaseService.instance;
+  
 
- 
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
- 
-
 
   Future postUser(UserRequest request) async {
     var jsonModel = json.encode(request.toJson());
 
     final response = await http.post(FIREBASE_AUT_URL, body: jsonModel);
 
-    final jsonbody =  await json.decode(response.body);
+    final jsonbody = await json.decode(response.body);
 
-    
     var reversedbody = await jsonbody.map((k, v) => MapEntry(v, k));
-    var uid = reversedbody.keys.firstWhere(
-                    (k) => reversedbody[k] == 'localId', orElse: () => null);
+    var uid = reversedbody.keys
+        .firstWhere((k) => reversedbody[k] == 'localId', orElse: () => null);
 
-      await SharedManager.instance
-        .saveString(SharedKeys.TOKEN, uid);
- 
+    await SharedManager.instance.saveString(SharedKeys.TOKEN, uid);
+
     switch (response.statusCode) {
       case HttpStatus.ok:
         return true;
@@ -54,56 +44,43 @@ class FirebaseService {
     }
   }
 
-   
+  // Future<List<User>> getUsers() async {
+  //   final response = await http.get("$FIREBASE_URL/users.json");
 
-  Future<List<User>> getUsers() async {
-    final response = await http.get("$FIREBASE_URL/users.json");
+  //   switch (response.statusCode) {
+  //     case HttpStatus.ok:
+  //       final jsonModel = json.decode(response.body);
+  //       final userList = jsonModel
+  //           .map((e) => User.fromJson(e as Map<String, dynamic>))
+  //           .toList()
+  //           .cast<User>();
 
-    switch (response.statusCode) {
-      case HttpStatus.ok:
-        final jsonModel = json.decode(response.body);
-        final userList = jsonModel
-            .map((e) => User.fromJson(e as Map<String, dynamic>))
-            .toList()
-            .cast<User>();
-      
-        return userList;
+  //       return userList;
 
-        break;
-      default:
-        return Future.error(response.statusCode);
-    }
-  }
+  //       break;
+  //     default:
+  //       return Future.error(response.statusCode);
+  //   }
+  // }
 
-  Future getStudents() async {
-     
-     var response = await _baseService.get<Student>(Student(), "students",
-        header: Header(
-            "auth", SharedManager.instance.getStringValue(SharedKeys.TOKEN)));
-    
-      if (response is List<Student>) {
-      print("okey");
-    } else {
-      print("no okey");
-    }
-    return response;  
+  // Future getStudents() async {
 
-   
+  //    var response = await _baseService.get<Student>(Student(), "students",
+  //       header: Header(
+  //           "auth", SharedManager.instance.getStringValue(SharedKeys.TOKEN)));
 
-  }
-   // GET UID
+  //     if (response is List<Student>) {
+  //     print("okey");
+  //   } else {
+  //     print("no okey");
+  //   }
+  //   return response;
+
+  // }
+  //  GET UID
   Future<String> getCurrentUID() async {
     return (await _firebaseAuth.currentUser()).uid;
   }
-
-  
-
-
-  // Sign Out
-  signOut() {
-    return _firebaseAuth.signOut();
-  }
-
 
   // switch (response.statusCode) {
   //   case HttpStatus.ok:
