@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:tez_bdt/core/helper/shared_manager.dart';
+
 
 import 'package:tez_bdt/core/model/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tez_bdt/core/services/firebase_services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 
 
@@ -24,7 +24,7 @@ class _ThoughtRecordState extends State<ThoughtRecord> {
   final db = Firestore.instance;
 
   List<Feeling> _feelings;
-  bool _isSelected;
+  
   List<String> _filters;
   List<String> _filters2;
   User user;
